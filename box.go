@@ -20,19 +20,18 @@ func NewBox(shapesCapacity int) *box {
 func (b *box) AddShape(shape Shape) error {
 	shapesLength := len(b.shapes)
 	if shapesLength == b.shapesCapacity {
+		return fmt.Errorf("Out of the shapesCapacity range")
+	} else {
 		b.shapes = append(b.shapes, shape)
 		return nil
-	} else {
-		return fmt.Errorf("Out of the shapesCapacity range")
 	}
 }
 
 // GetByIndex allows getting shape by index
 // whether shape by index doesn't exist or index went out of the range, then it returns an error
 func (b *box) GetByIndex(i int) (Shape, error) {
-	shapesLength := len(b.shapes)
-	if i < 0 || i >= shapesLength {
-		err := fmt.Errorf("Index %d is out of the range", i)
+	err := isOutOfRange(i, len(b.shapes))
+	if err != nil {
 		return nil, err
 	}
 
@@ -44,14 +43,14 @@ func (b *box) GetByIndex(i int) (Shape, error) {
 // ExtractByIndex allows getting shape by index and removes this shape from the list.
 // whether shape by index doesn't exist or index went out of the range, then it returns an error
 func (b *box) ExtractByIndex(i int) (Shape, error) {
-	shapesLength := len(b.shapes)
-	if i < 0 || i >= shapesLength {
-		err := fmt.Errorf("Index %d is out of the range", i)
+	err := isOutOfRange(i, len(b.shapes))
+	if err != nil {
 		return nil, err
 	}
 
 	var shape Shape
 	shape = b.shapes[i]
+	b.shapes = append(b.shapes[:i], b.shapes[i+1:]...)
 	return shape, nil
 }
 
@@ -59,12 +58,10 @@ func (b *box) ExtractByIndex(i int) (Shape, error) {
 // whether shape by index doesn't exist or index went out of the range, then it returns an error
 func (b *box) ReplaceByIndex(i int, shape Shape) (Shape, error) {
 
-	shapesLength := len(b.shapes)
-	if i < 0 || i >= shapesLength {
-		err := fmt.Errorf("Index %d is out of the range", i)
+	err := isOutOfRange(i, len(b.shapes))
+	if err != nil {
 		return nil, err
 	}
-
 	var replacedShape Shape
 	replacedShape = b.shapes[i]
 	b.shapes[i] = shape
@@ -103,5 +100,13 @@ func (b *box) RemoveAllCircles() error {
 		return fmt.Errorf("Circles are not exist in the list")
 	}
 	b.shapes = shapes
+	return nil
+}
+
+func isOutOfRange(index, length int) error {
+	if index < 0 || index >= length {
+		err := fmt.Errorf("Index %d is out of the range", index)
+		return err
+	}
 	return nil
 }
